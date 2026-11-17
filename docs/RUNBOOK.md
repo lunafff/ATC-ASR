@@ -1,5 +1,7 @@
 # Runbook / 实验追踪表
 
+安装故障修复（2026-11-17）：用户Windows Python3.11自带pip在cu121单一索引安装时拒绝typing_extensions包名元数据，继而找不到flit_core。run.ps1已改为先从PyPI升级pip，以PyPI为主索引、cu121为额外索引，并精确指定torch==2.5.1+cu121；普通依赖从PyPI安装，随后pip check。此次失败在训练前，无需删除runtime、venv或pip缓存；拉取修复后重跑即可。
+
 ## Windows A6000 入口（用户已确认）
 
 目标 Windows + A6000，可访问HF。安装Git、NVIDIA驱动、Python3.11后，用 `git clone -b codex/asr-round2 https://github.com/lunafff/ATC-ASR.git asr-round2` 克隆本轮独立仓库，在目录内执行 `powershell -ExecutionPolicy Bypass -File .\run.ps1`。后续更新用 `git pull --ff-only origin codex/asr-round2`，本机提交后使用 `git push`。入口验证Python3.10–3.12、建立venv、显式安装CUDA12.1版PyTorch，再运行完整流水线。分阶段用 `-Stage prepare/train/final/package`。Python路径用 `-Python 'C:\路径\python.exe'` 指定。查看日志：`Get-Content .\runtime\logs\launcher.log -Tail 30 -Wait`。Windows不要执行下文Linux的nohup命令。

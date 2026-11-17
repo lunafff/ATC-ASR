@@ -29,11 +29,16 @@ $venvPython = Join-Path $PSScriptRoot '.venv/Scripts/python.exe'
 New-Item -ItemType Directory -Force 'runtime/logs' | Out-Null
 $ErrorActionPreference = 'Continue'
 if ($Stage -ne 'package') {
-    # Explicit CUDA wheels: avoid accidentally installing a CPU-only Windows build.
-    & $venvPython -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cu121
+    # Upgrade bundled pip before resolving modern normalized package metadata.
+    & $venvPython -m pip install --upgrade pip --index-url https://pypi.org/simple
+    if ($LASTEXITCODE -ne 0) { throw 'pip upgrade failed.' }
+    # General dependencies come from PyPI; require the exact CUDA wheel build.
+    & $venvPython -m pip install 'torch==2.5.1+cu121' --index-url https://pypi.org/simple --extra-index-url https://download.pytorch.org/whl/cu121
     if ($LASTEXITCODE -ne 0) { throw 'CUDA PyTorch installation failed.' }
-    & $venvPython -m pip install -r requirements.txt
+    & $venvPython -m pip install -r requirements.txt --index-url https://pypi.org/simple
     if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed.' }
+    & $venvPython -m pip check
+    if ($LASTEXITCODE -ne 0) { throw 'Installed dependencies are inconsistent.' }
 }
 $pipelineArgs = @('src/pipeline.py', '--stage', $Stage)
 if ($Config) { $pipelineArgs += @('--config', $Config) }
