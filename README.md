@@ -8,10 +8,10 @@
 
 用户目标环境：Windows、A6000、可访问 Hugging Face。安装 Git、NVIDIA 驱动和 Python 3.11（推荐）；支持 Python 3.10–3.12，不支持仅笼统的任意 Python 3.x。磁盘预留至少 80GB；显存和耗时以 smoke 为准，未在本机实测。脚本创建独立虚拟环境，安装 CUDA 12.1 版 PyTorch 2.5.1 和固定依赖，不安装系统驱动，也不要求另装完整 CUDA Toolkit。驱动需要支持该 CUDA 运行时。首次下载较慢。
 
-将交付的 `asr_round2_20261117.bundle` 复制到 GPU 机器，在 PowerShell 执行：
+本机将代码 push 到远程仓库；GPU 机器首次在 PowerShell 执行（URL 待配置）：
 
 ```powershell
-git clone -b codex/asr-round2 .\asr_round2_20261117.bundle asr-round2
+git clone -b codex/asr-round2 <远程仓库URL> asr-round2
 cd asr-round2
 powershell -ExecutionPolicy Bypass -File .\run.ps1
 ```
@@ -31,14 +31,18 @@ powershell -ExecutionPolicy Bypass -File .\run.ps1 -Stage package
 
 默认 `all` 顺序执行上述流程，smoke 异常立即停止。修改代码、配置或种子开展新一轮之前，将整个 `runtime` 移到另一归档目录；脚本拒绝混用不同代码/配置。不要在运行期间 git pull 修改代码。
 
-## 本地独立 Git 仓库
+## 远程 Git 同步
 
-本目录已初始化独立仓库，分支 `codex/asr-round2`，不配置远程、不包含旧项目历史。bundle 包含本轮完整 Git 历史，适合离线复制。后续在本目录开发并提交，再生成新 bundle 传送到 GPU 机器。
+本目录已初始化独立仓库，分支 `codex/asr-round2`，不包含旧项目历史。仅提交本轮代码、配置和文档；runtime 已被忽略。远程 URL 尚待提供，拿到地址后配置 origin 并执行首次 push。
 
 ```bash
-git bundle create ../asr_round2_update.bundle --all
-# GPU 机器上，等待当前实验结束后再更新
-git pull ../asr_round2_update.bundle codex/asr-round2
+# 本机，首次配置并推送
+git remote add origin <远程仓库URL>
+git push -u origin codex/asr-round2
+# 本机，后续开发提交后
+git push
+# GPU 机器，等待当前实验结束后再更新
+git pull --ff-only origin codex/asr-round2
 ```
 
 修改训练代码后不能接着用旧 runtime 训练；需先归档 runtime。Windows首次执行可用 `nvidia-smi`、`py -3.11 --version` 检查驱动和解释器；入口会验证 Python 版本。

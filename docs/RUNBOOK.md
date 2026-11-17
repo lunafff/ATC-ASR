@@ -2,7 +2,7 @@
 
 ## Windows A6000 入口（用户已确认）
 
-目标 Windows + A6000，可访问HF。安装Git、NVIDIA驱动、Python3.11后，从bundle克隆本轮独立仓库，在目录内执行 `powershell -ExecutionPolicy Bypass -File .\run.ps1`。入口验证Python3.10–3.12、建立venv、显式安装CUDA12.1版PyTorch，再运行完整流水线。分阶段用 `-Stage prepare/train/final/package`。Python路径用 `-Python 'C:\路径\python.exe'` 指定。查看日志：`Get-Content .\runtime\logs\launcher.log -Tail 30 -Wait`。Windows不要执行下文Linux的nohup命令。
+目标 Windows + A6000，可访问HF。安装Git、NVIDIA驱动、Python3.11后，用 `git clone -b codex/asr-round2 <远程仓库URL> asr-round2` 克隆本轮独立仓库，在目录内执行 `powershell -ExecutionPolicy Bypass -File .\run.ps1`。后续更新用 `git pull --ff-only origin codex/asr-round2`，本机提交后使用 `git push`。入口验证Python3.10–3.12、建立venv、显式安装CUDA12.1版PyTorch，再运行完整流水线。分阶段用 `-Stage prepare/train/final/package`。Python路径用 `-Python 'C:\路径\python.exe'` 指定。查看日志：`Get-Content .\runtime\logs\launcher.log -Tail 30 -Wait`。Windows不要执行下文Linux的nohup命令。
 
 下面保留跨平台流程表；其中bash命令为Linux备选，Windows使用上述PowerShell等效入口。
 
