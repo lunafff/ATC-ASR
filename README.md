@@ -8,10 +8,10 @@
 
 用户目标环境：Windows、A6000、可访问 Hugging Face。安装 Git、NVIDIA 驱动和 Python 3.11（推荐）；支持 Python 3.10–3.12，不支持仅笼统的任意 Python 3.x。磁盘预留至少 80GB；显存和耗时以 smoke 为准，未在本机实测。脚本创建独立虚拟环境，安装 CUDA 12.1 版 PyTorch 2.5.1 和固定依赖，不安装系统驱动，也不要求另装完整 CUDA Toolkit。驱动需要支持该 CUDA 运行时。首次下载较慢。
 
-本机将代码 push 到远程仓库；GPU 机器首次在 PowerShell 执行（URL 待配置）：
+本机将代码 push 到远程仓库；GPU 机器首次在 PowerShell 执行：
 
 ```powershell
-git clone -b codex/asr-round2 <远程仓库URL> asr-round2
+git clone -b codex/asr-round2 https://github.com/lunafff/ATC-ASR.git asr-round2
 cd asr-round2
 powershell -ExecutionPolicy Bypass -File .\run.ps1
 ```
@@ -33,11 +33,11 @@ powershell -ExecutionPolicy Bypass -File .\run.ps1 -Stage package
 
 ## 远程 Git 同步
 
-本目录已初始化独立仓库，分支 `codex/asr-round2`，不包含旧项目历史。仅提交本轮代码、配置和文档；runtime 已被忽略。远程 URL 尚待提供，拿到地址后配置 origin 并执行首次 push。
+本目录已初始化独立仓库，分支 `codex/asr-round2`，不包含旧项目历史。仅提交本轮代码、配置和文档；runtime 已被忽略。远程 origin 使用 https://github.com/lunafff/ATC-ASR.git。
 
 ```bash
 # 本机，首次配置并推送
-git remote add origin <远程仓库URL>
+git remote add origin https://github.com/lunafff/ATC-ASR.git
 git push -u origin codex/asr-round2
 # 本机，后续开发提交后
 git push
