@@ -2,7 +2,7 @@
 
 本目录是独立交付单元。只用 Git 传代码与配置；权重、数据、检查点和日志全部写入被忽略的 `runtime/`。历史实验不覆盖。本机不训练。完整计划见 [实验设计](docs/EXPERIMENT_PLAN.md)，逐项运行记录见 [RUNBOOK](docs/RUNBOOK.md)。
 
-学生采用 **openai/whisper-base 多语言版，约 74M 参数、6 层 encoder + 6 层 decoder**；教师采用指定 ATCO2 large-v3（32+32 层，约 1.55B）。学生全部微调，不复制教师层、不冻结旧 turbo 编码器。此次英语陆空通话数据训练和英语评测不能证明中文能力保持。
+学生统一采用 **openai/whisper-small 多语言版，约 244M 参数、12 层 encoder + 12 层 decoder**，revision `973afd24965f72e36ca33b3055d56a652f456b4d`；教师采用 **jlvdoorn/whisper-large-v3-atco2-asr-atcosim 混合版**（32+32 层，约 1.55B），revision `efd96bd7862709d2d6aeb55621934a9965db8ed7`。四个平行组保持 CE、KD、KD+对抗0.01、KD+对抗0.1，超参数和数据划分不变。旧 base + 单语料教师实验整体作废。学生全部微调，不复制教师层、不冻结旧 turbo 编码器。此次英语陆空通话数据训练和英语评测不能证明中文能力保持。
 
 ## GPU 机器一键执行
 

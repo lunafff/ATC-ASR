@@ -7,6 +7,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WORK = ROOT / 'runtime'
 
+def evaluation_path(output, suffix):
+    output = Path(output)
+    return output.parent / (output.name + suffix)
+
 def dump(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)

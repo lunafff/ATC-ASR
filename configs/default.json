@@ -1,8 +1,8 @@
 {
-  "teacher": "jlvdoorn/whisper-large-v3-atco2-asr",
-  "student": "openai/whisper-base",
-  "teacher_revision": "f7a0dddfea9de70f9f5b2e1332ae19734e60081f",
-  "student_revision": "e37978b90ca9030d5170a5c07aadb050351a65bb",
+  "teacher": "jlvdoorn/whisper-large-v3-atco2-asr-atcosim",
+  "student": "openai/whisper-small",
+  "teacher_revision": "efd96bd7862709d2d6aeb55621934a9965db8ed7",
+  "student_revision": "973afd24965f72e36ca33b3055d56a652f456b4d",
   "dataset": "jlvdoorn/atco2-asr-atcosim",
   "dataset_revision": "21820a50f2f4d0a8f90838feb4efe88c3db31f95",
   "language": "en", "seed": 42,

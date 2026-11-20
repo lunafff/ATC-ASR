@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 from transformers import WhisperForConditionalGeneration, WhisperProcessor
 from jiwer import process_words
-from common import WORK, dump, rows, normalize, seed_all, alignment
+from common import WORK, dump, rows, normalize, seed_all, alignment, evaluation_path
 from data import load_audio, features, labels_for
 
 def processor(path, cfg):
@@ -56,8 +56,8 @@ def evaluate(m, p, records, cfg, output):
                'parameters': sum(v.numel() for v in m.parameters()), 'n': len(records),
                'latency_scope': 'feature extraction + greedy generation, batch=1, float32, no VAD; excludes file I/O',
                'entity_error': None, 'length_cap_count': sum(r['hit_length_cap'] for r in predictions)}
-    dump(output.with_suffix('.json'), metrics)
-    output.with_suffix('.jsonl').write_text(''.join(json.dumps(r, ensure_ascii=False)+'\n' for r in predictions), encoding='utf-8')
+    dump(evaluation_path(output, '.json'), metrics)
+    evaluation_path(output, '.jsonl').write_text(''.join(json.dumps(r, ensure_ascii=False)+'\n' for r in predictions), encoding='utf-8')
     return metrics
 
 def train(cfg, name, kd, adv, smoke=False):

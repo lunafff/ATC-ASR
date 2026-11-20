@@ -2,6 +2,8 @@
 
 | Date | Skill | File | Stage |
 |---|---|---|---|
+| 2026-11-20 | analyze-results | docs/EXPERIMENT_RESULTS_20261120.md | results review |
+| 2026-11-20 | analyze-results | docs/RUNBOOK.md | results tracking |
 | 2026-11-17 | experiment-bridge | .gitattributes | implementation |
 | 2026-11-17 | experiment-bridge | .gitignore | implementation |
 | 2026-11-17 | experiment-bridge | configs/default.json | implementation |

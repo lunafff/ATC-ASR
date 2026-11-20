@@ -1,5 +1,31 @@
 # Runbook / 实验追踪表
 
+**2026-11-20 决定：旧第二轮整体作废。下方完成状态仅为历史运行记录，不作为有效基线或方法结论；改用混合版教师后，CE、KD、两个对抗组及评测全部重跑。**
+
+耗时预算（同一 A6000、当前 5 epoch 配置）：原包文件时间显示 smoke 完成于 11-18 01:51，整轮完成于 12:47，训练与最终评测合计约 10 小时 56 分。按相邻组完成时间估计（包含加载、Dev 评测和保存）：CE 约 51 分钟，KD 约 3 小时 10 分，两个对抗组各约 3 小时 10 分，最终评测和打包约 35 分钟。混合版架构相同，预计计算部分约 11 小时，计入下载与数据准备预留 12–14 小时；网络较慢另计。以上依据归档时间估算，不是逐阶段精确计时。
+
+## 2026-11-20 small + 混合版教师重跑入口
+
+学生统一替换为 `openai/whisper-small`，revision `973afd24965f72e36ca33b3055d56a652f456b4d`。四组仍为 CE / KD / KD+对抗0.01 / KD+对抗0.1，每组5 epoch、seed42、lr1e-5、batch1、累积8、T2、KD权重0.5、D lr1e-4。数据及划分算法未改变。前述耗时属于旧 base 实验，不能作为 small 的耗时承诺。
+
+本地核对了固定版本的模型配置、特征配置及完整 tokenizer.json：教师32+32层/128 mel/51866词，学生12+12层/80 mel/51865词；51865个学生token均存在一对一教师映射。本地未验证CUDA实际前向/反向，服务器入口先运行真实smoke（包括CE/KD/D/G）再进行四组训练。
+
+默认教师改为 `jlvdoorn/whisper-large-v3-atco2-asr-atcosim`，revision `efd96bd7862709d2d6aeb55621934a9965db8ed7`。下方已完成记录均属于旧 ATCO2 单语料版教师。混合版的 KD / 对抗结果需重跑，不能沿用旧检查点。另修复对抗组小数名称导致预测文件互相覆盖的问题。
+
+GPU 机器必须在当前任务停止后更新；先将旧 runtime 改名留存，再启动新运行。不要把旧 `models/teacher`、`complete.json` 或 `best/` 复制回新 runtime。以下命令假定本机更改已推送：
+
+```powershell
+git pull --ff-only origin codex/asr-round2
+if ($LASTEXITCODE -ne 0) { throw 'Git pull failed' }
+if (Test-Path -LiteralPath .\runtime) {
+    $archivePath = Join-Path $PWD ('runtime_old_atco2_' + (Get-Date -Format 'yyyyMMdd_HHmmss'))
+    Move-Item -LiteralPath (Join-Path $PWD 'runtime') -Destination $archivePath -ErrorAction Stop
+}
+powershell -ExecutionPolicy Bypass -File .\run.ps1
+```
+
+新运行会重新下载混合版教师，并在独立 runtime 中完整执行。原始结果页保留旧配置数值；混合版结果尚未生成。
+
 安装故障修复（2026-11-17）：用户Windows Python3.11自带pip在cu121单一索引安装时拒绝typing_extensions包名元数据，继而找不到flit_core。run.ps1已改为先从PyPI升级pip，以PyPI为主索引、cu121为额外索引，并精确指定torch==2.5.1+cu121；普通依赖从PyPI安装，随后pip check。此次失败在训练前，无需删除runtime、venv或pip缓存；拉取修复后重跑即可。
 
 ## Windows A6000 入口（用户已确认）
@@ -8,19 +34,19 @@
 
 下面保留跨平台流程表；其中bash命令为Linux备选，Windows使用上述PowerShell等效入口。
 
-2026-11-17 状态：代码已实现，真实 CUDA smoke 和正式实验均未运行。不要将代码完成等同于实验完成。
+2026-11-20 复核：RTX A6000 于 2026-11-18 12:47（北京时间）完成 smoke、四组训练、测试和打包。指标、逐条复算及证据限制见 [实验结果与评审](EXPERIMENT_RESULTS_20261120.md)。
 
 | ID | 阶段/脚本 | 输出 | 当前状态 |
 |---|---|---|---|
-| P00 | run.sh 安装隔离环境；pipeline.py 记录环境/代码 | runtime/provenance | 待GPU机器执行 |
-| P01 | prepare.py 下载固定revision模型/数据、导出音频、去重划分 | models / dataset / audio / manifests | 待执行 |
-| S00 | engine.py smoke：2样本 CE+KD+adv，2条 dev 生成 | runs/smoke | 待执行；失败阻断后续 |
-| R01 | CE，seed42，5 epochs | runs/supervised | 待执行 |
-| R02 | CE+KD，T2，alpha .5 | runs/kd | 待执行 |
-| R03 | CE+KD+adv .01 | runs/kd_adv_0.01 | 待执行 |
-| R04 | CE+KD+adv .1 | runs/kd_adv_0.1 | 待执行 |
-| E00 | teacher、初始student、R01–04统一测试 | evaluation/*.jsonl，summary.json/csv | 待全部组完成 |
-| Z00 | pipeline.py package | results_return.tar.gz | 待执行 |
+| P00 | run.ps1 安装环境；pipeline.py 记录环境/代码 | runtime/provenance | 完成；提交 6fae99d |
+| P01 | prepare.py 下载、导出、划分 | models / dataset / audio / manifests | 完成；7286/804/2026 条 |
+| S00 | engine.py smoke | runs/smoke | 通过 |
+| R01 | CE，seed42，5 epochs | runs/supervised | 完成；最优 epoch 4，test WER 4.285% |
+| R02 | CE+KD，T2，alpha .5 | runs/kd | 完成；最优 epoch 4，test WER 5.102% |
+| R03 | CE+KD+adv .01 | runs/kd_adv_0.01 | 完成；最优 epoch 5，test WER 7.134%（仅汇总） |
+| R04 | CE+KD+adv .1 | runs/kd_adv_0.1 | 完成；最优 epoch 5，test WER 6.061% |
+| E00 | teacher、初始student、R01–04统一测试 | evaluation/*.jsonl，summary.json/csv | 完成；0.01 组逐条预测被命名碰撞覆盖 |
+| Z00 | pipeline.py package | results_return.tar.gz | 已回传并复核 |
 
 现场步骤：确认驱动 `nvidia-smi`、Python `python3.11 --version`、80GB可用磁盘；拉取固定 commit，执行 `bash run.sh`。需要后台运行时可用 `nohup bash run.sh > launcher.console.log 2>&1 &`，之后用 `tail -f runtime/logs/launcher.log` 查看。
 

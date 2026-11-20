@@ -1,8 +1,8 @@
 # 实验设计
 
-研究问题：74M 学生在相同数据和训练预算下，KD 能否优于纯监督；对抗分布匹配是否在 KD 之上进一步改善 WER，较强系数是否反而损害迁移。当前是单种子探索，不作统计显著性或实体准确率提升结论。
+研究问题：244M Whisper-small 学生在相同数据和训练预算下，KD 能否优于纯监督；对抗分布匹配是否在 KD 之上进一步改善 WER，较强系数是否反而损害迁移。当前是单种子探索，不作统计显著性或实体准确率提升结论。
 
-模型选择来源：https://huggingface.co/openai/whisper-base 与 https://huggingface.co/jlvdoorn/whisper-large-v3-atco2-asr 。base 74M，small 244M，tiny 39M；选择 base 作为容量/压缩折中，若容量不足，下一轮预注册 small。教师模型卡列出 Apache-2.0，但训练数据描述不完整；其卡片 WER 不能直接当成本实验基线。模型及数据 revision 已在配置固定。实测参数量、权重字节数由评测脚本记录。
+模型选择：学生 https://huggingface.co/openai/whisper-small （多语言，约244M）；教师 https://huggingface.co/jlvdoorn/whisper-large-v3-atco2-asr-atcosim （混合语料版）。按用户要求完全替换 base，保留四组原有超参数和数据划分，不增加第二个学生。旧实验整体作废。教师模型卡列出 Apache-2.0，但训练数据描述不完整；其卡片 WER 不能直接当成本实验基线。模型及数据 revision 已在配置固定。实测参数量、权重字节数由评测脚本记录。
 
 教师 128 mel、学生 80 mel，各自独立提取同一音频特征。teacher 51866 词、student 51865 词，通过 token 字符串构造映射（已确认的 nocaptions/nospeech 无语音标记使用显式别名）；教师 logits 在学生词表支持集上重新归一化，明确不是直接对完整不同词表做 KL。共享标注前缀、转录、EOS 均映射到教师坐标后 teacher forcing；教师无梯度。没有层对齐损失。
 
