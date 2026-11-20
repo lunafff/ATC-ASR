@@ -1,0 +1,248 @@
+{
+  "dataset": {
+    "repo": "jlvdoorn/atco2-asr-atcosim",
+    "revision": "21820a50f2f4d0a8f90838feb4efe88c3db31f95",
+    "files": [
+      {
+        "size": 406110129,
+        "path": "data/train-00000-of-00005-c6681348ac8543dc.parquet",
+        "blob": "c886a24a4cf2d760351005c12283b1f048a6f002",
+        "sha256": "6c73963621be2be83cffc1c36e425167fe957f97f0239d98ed2df13428136666"
+      },
+      {
+        "size": 407150710,
+        "path": "data/train-00001-of-00005-464e7b29cac82caf.parquet",
+        "blob": "cf3cc127f33dbb0daf427a678cfdc870a56c7bee",
+        "sha256": "5518f7b177765eba9c65aaf39ed39ba0f683f8b970e07d0b33c43513a3161aea"
+      },
+      {
+        "size": 400730825,
+        "path": "data/train-00002-of-00005-008f85162351773d.parquet",
+        "blob": "d0f41db65527186235a64a5acc01820f3e4e5d2d",
+        "sha256": "ee7119f1ac47328e0f226807b27b264f33cf986bf432768b18a3cdd1ce0cd996"
+      },
+      {
+        "size": 386832281,
+        "path": "data/train-00003-of-00005-13846616069619e5.parquet",
+        "blob": "528b52c8ad8bf89f3dd3d85553e5d02e8aca6231",
+        "sha256": "ca6460bf2b02dd754c074e975bc2b1c4c40a9847be0aed3f8e582f531ae9b1e0"
+      },
+      {
+        "size": 418670588,
+        "path": "data/train-00004-of-00005-0565e63298f50d49.parquet",
+        "blob": "a73ce62b4f44e55eb21e85aa68494f5f79ae89a5",
+        "sha256": "2febfaab9851380c3bf4b1c84f7b3a53ac436fae73d4c6e4b0cb314c16de94ef"
+      },
+      {
+        "size": 260347543,
+        "path": "data/validation-00000-of-00002-7a5ea3756991bf72.parquet",
+        "blob": "8c842bda66d445d2e50b482bebecbc2468b9ac33",
+        "sha256": "868ce6301b177ae3159b9ad79a11dbecb2cbf6fc08fd5267e2bc81a3a9fd1b36"
+      },
+      {
+        "size": 245105255,
+        "path": "data/validation-00001-of-00002-56cef56513136770.parquet",
+        "blob": "d703630d861d7a527baef61f5f393018c6499738",
+        "sha256": "983d64d32f53cf6b477b8c70b469644606517dceada8bb646d4cb00cddc8a33f"
+      }
+    ]
+  },
+  "teacher": {
+    "repo": "jlvdoorn/whisper-large-v3-atco2-asr-atcosim",
+    "revision": "efd96bd7862709d2d6aeb55621934a9965db8ed7",
+    "files": [
+      {
+        "size": 1322,
+        "path": "config.json",
+        "blob": "aba7ef06e24093b96bf7459353863bb8767e99f6",
+        "sha256": null
+      },
+      {
+        "size": 3867,
+        "path": "generation_config.json",
+        "blob": "52438e92f9d7453431a0494cdaf9c4cd57aba7ff",
+        "sha256": null
+      },
+      {
+        "size": 493869,
+        "path": "merges.txt",
+        "blob": "6038932a2a1f09a66991b1c2adae0d14066fa29e",
+        "sha256": null
+      },
+      {
+        "size": 3219908024,
+        "path": "model.safetensors",
+        "blob": "d06da9130ef0d4cf20d84d081bdd9c0cd59db986",
+        "sha256": "fdd401356e0e8eb5a6d6688a5f2df9f3c52215973151b8eff05b4cf7a152ea29"
+      },
+      {
+        "size": 340,
+        "path": "preprocessor_config.json",
+        "blob": "931c77a740890c46365c7ae0c9d350ba3cca908f",
+        "sha256": null
+      },
+      {
+        "size": 2072,
+        "path": "special_tokens_map.json",
+        "blob": "3c18e97162d572f2b1d62e7e1c7b805f1be11dbe",
+        "sha256": null
+      },
+      {
+        "size": 2480617,
+        "path": "tokenizer.json",
+        "blob": "3a5e2ba63acdcac9a19ba56cf9bd27f185bfff61",
+        "sha256": null
+      },
+      {
+        "size": 1036558,
+        "path": "vocab.json",
+        "blob": "0f3456460629e21d559c6daa23ab6ce3644e8271",
+        "sha256": null
+      }
+    ]
+  },
+  "small": {
+    "repo": "openai/whisper-small",
+    "revision": "973afd24965f72e36ca33b3055d56a652f456b4d",
+    "files": [
+      {
+        "size": 34604,
+        "path": "added_tokens.json",
+        "blob": "e3d256c988462aa153dcabe2aa38b8e9b436c06f",
+        "sha256": null
+      },
+      {
+        "size": 1967,
+        "path": "config.json",
+        "blob": "113bb3efe3a7396f2ea629eef12637bd8085238d",
+        "sha256": null
+      },
+      {
+        "size": 3868,
+        "path": "generation_config.json",
+        "blob": "d3823179a367fa912e3b911b3d2e71ab2a028290",
+        "sha256": null
+      },
+      {
+        "size": 493869,
+        "path": "merges.txt",
+        "blob": "6038932a2a1f09a66991b1c2adae0d14066fa29e",
+        "sha256": null
+      },
+      {
+        "size": 966995080,
+        "path": "model.safetensors",
+        "blob": "b737d9fc4345d96e8f69b440ab742a269bf7e734",
+        "sha256": "1d7734884874f1a1513ed9aa760a4f8e97aaa02fd6d93a3a85d27b2ae9ca596b"
+      },
+      {
+        "size": 52666,
+        "path": "normalizer.json",
+        "blob": "dd6ae819ad738ac1a546e9f9282ef325c33b9ea0",
+        "sha256": null
+      },
+      {
+        "size": 184990,
+        "path": "preprocessor_config.json",
+        "blob": "c2048dfa9fd94a052e62e908d2c4dfb18534b4d2",
+        "sha256": null
+      },
+      {
+        "size": 2194,
+        "path": "special_tokens_map.json",
+        "blob": "bf69932dca4b3719b59fdd8f6cc1978109509f6c",
+        "sha256": null
+      },
+      {
+        "size": 2480466,
+        "path": "tokenizer.json",
+        "blob": "1e95340ff836fad1b5932e800fb7b8c5e6d78a74",
+        "sha256": null
+      },
+      {
+        "size": 282683,
+        "path": "tokenizer_config.json",
+        "blob": "d13b786c04765fb1a06492b53587752cd67665ea",
+        "sha256": null
+      },
+      {
+        "size": 835550,
+        "path": "vocab.json",
+        "blob": "d7016e21da8776c8a9d577d0f559600f09a240eb",
+        "sha256": null
+      }
+    ]
+  },
+  "base": {
+    "repo": "openai/whisper-base",
+    "revision": "e37978b90ca9030d5170a5c07aadb050351a65bb",
+    "files": [
+      {
+        "size": 34604,
+        "path": "added_tokens.json",
+        "blob": "e3d256c988462aa153dcabe2aa38b8e9b436c06f",
+        "sha256": null
+      },
+      {
+        "size": 1983,
+        "path": "config.json",
+        "blob": "708cca09e7e8a9364e444efe8b4f9c2691fc5f51",
+        "sha256": null
+      },
+      {
+        "size": 3807,
+        "path": "generation_config.json",
+        "blob": "38eda87a0b22fdb85af5dfa14cf065147337137a",
+        "sha256": null
+      },
+      {
+        "size": 493869,
+        "path": "merges.txt",
+        "blob": "6038932a2a1f09a66991b1c2adae0d14066fa29e",
+        "sha256": null
+      },
+      {
+        "size": 290403936,
+        "path": "model.safetensors",
+        "blob": "b33bf321ebc337cb76317be997e0782bc7552465",
+        "sha256": "07cadb9f25677c8d50df603e66a98fbd842cce45047139baeb16e6219a1e807b"
+      },
+      {
+        "size": 52666,
+        "path": "normalizer.json",
+        "blob": "dd6ae819ad738ac1a546e9f9282ef325c33b9ea0",
+        "sha256": null
+      },
+      {
+        "size": 184990,
+        "path": "preprocessor_config.json",
+        "blob": "c2048dfa9fd94a052e62e908d2c4dfb18534b4d2",
+        "sha256": null
+      },
+      {
+        "size": 2194,
+        "path": "special_tokens_map.json",
+        "blob": "bf69932dca4b3719b59fdd8f6cc1978109509f6c",
+        "sha256": null
+      },
+      {
+        "size": 2480466,
+        "path": "tokenizer.json",
+        "blob": "1e95340ff836fad1b5932e800fb7b8c5e6d78a74",
+        "sha256": null
+      },
+      {
+        "size": 282683,
+        "path": "tokenizer_config.json",
+        "blob": "d13b786c04765fb1a06492b53587752cd67665ea",
+        "sha256": null
+      },
+      {
+        "size": 835550,
+        "path": "vocab.json",
+        "blob": "d7016e21da8776c8a9d577d0f559600f09a240eb",
+        "sha256": null
+      }
+    ]
+  }
+}

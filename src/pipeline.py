@@ -28,7 +28,11 @@ def main():
     source_hashes = {str(p.relative_to(ROOT)): digest(p) for p in sorted((ROOT / 'src').glob('*.py'))}
     sources = WORK / 'provenance/sources.json'
     if sources.exists() and json.loads(sources.read_text(encoding='utf-8')) != source_hashes:
-        raise RuntimeError('Source changed: preserve runtime and start a new suite directory')
+        if any(p.is_file() for p in (WORK / 'runs').rglob('*')):
+            raise RuntimeError('Source changed after training began: preserve runtime and start a new suite directory')
+        dump(WORK / 'provenance/sources_before_download_fix.json',
+             json.loads(sources.read_text(encoding='utf-8')))
+        print('Updating source lock before training; preserving local downloads.', flush=True)
     dump(sources, source_hashes)
     def git(*cmd):
         return subprocess.run(['git', *cmd], cwd=ROOT, capture_output=True, text=True).stdout.strip()

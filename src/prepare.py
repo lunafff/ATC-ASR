@@ -5,25 +5,21 @@ from pathlib import Path
 import numpy as np
 import pyarrow.parquet as pq
 import soundfile as sf
-from huggingface_hub import HfApi, snapshot_download
-from common import WORK, dump, normalize, digest
+from huggingface_hub import snapshot_download
+from common import ROOT, WORK, dump, normalize, digest
+from local_assets import ensure_assets
 
 def prepare(cfg):
     revisions = {}
-    api = HfApi()
     for key in ('teacher', 'student', 'dataset'):
-        repo_type = 'dataset' if key == 'dataset' else 'model'
-        revision = cfg.get(f'{key}_revision') or api.repo_info(cfg[key], repo_type=repo_type).sha
-        revisions[key] = revision
-        snapshot_download(cfg[key], repo_type=repo_type, revision=revision,
-                          local_dir=WORK / ('dataset' if key == 'dataset' else f'models/{key}'),
-                          allow_patterns=['*.json', '*.txt', '*.safetensors', '*.parquet', 'README.md'])
+        revisions[key] = ensure_assets(cfg, key, ROOT, WORK, snapshot_download)
     dump(WORK / 'provenance/revisions.json', revisions)
     sets = {'train': [], 'dev': [], 'test': []}
     seen = {}
     rejects = []
     # Process held-out split first: duplicate audio in training is removed.
-    files = sorted((WORK / 'dataset').rglob('*.parquet'))
+    inventory = json.loads((ROOT / 'configs/assets.json').read_text(encoding='utf-8'))['dataset']
+    files = sorted(WORK / 'dataset' / entry['path'] for entry in inventory['files'])
     held = [p for p in files if p.name.startswith('validation')]
     training = [p for p in files if p.name.startswith('train')]
     if not held or not training:
