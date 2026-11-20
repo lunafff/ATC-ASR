@@ -2,7 +2,7 @@
 
 研究问题：244M Whisper-small 学生在相同数据和训练预算下，KD 能否优于纯监督；对抗分布匹配是否在 KD 之上进一步改善 WER，较强系数是否反而损害迁移。当前是单种子探索，不作统计显著性或实体准确率提升结论。
 
-模型选择：学生 https://huggingface.co/openai/whisper-small （多语言，约244M）；教师 https://huggingface.co/jlvdoorn/whisper-large-v3-atco2-asr-atcosim （混合语料版）。按用户要求完全替换 base，保留四组原有超参数和数据划分，不增加第二个学生。旧实验整体作废。教师模型卡列出 Apache-2.0，但训练数据描述不完整；其卡片 WER 不能直接当成本实验基线。模型及数据 revision 已在配置固定。实测参数量、权重字节数由评测脚本记录。
+模型选择：学生为 openai/whisper-base（约74M）和 openai/whisper-small（约244M），两者均用多语言版，各自独立完成四组原有实验，共8组，超参数及数据划分相同。共同教师 https://huggingface.co/jlvdoorn/whisper-large-v3-atco2-asr-atcosim （混合语料版）。旧实验整体作废。模型及数据 revision 已在配置固定。实测参数量、权重字节数由评测脚本记录。教师模型卡的 WER 不能直接当成本实验基线。
 
 教师 128 mel、学生 80 mel，各自独立提取同一音频特征。teacher 51866 词、student 51865 词，通过 token 字符串构造映射（已确认的 nocaptions/nospeech 无语音标记使用显式别名）；教师 logits 在学生词表支持集上重新归一化，明确不是直接对完整不同词表做 KL。共享标注前缀、转录、EOS 均映射到教师坐标后 teacher forcing；教师无梯度。没有层对齐损失。
 
@@ -16,4 +16,4 @@
 
 统一评测：Transformers、float32、batch=1、greedy、English transcribe、无 timestamps、无提示词、无 VAD、无量化。规范化：英文小写、去撇号、其他标点转空格、合并空白；不映射数字或同义读法。WER 对人工真值，存 0–1 比例（可超过1）；报告 RTF、参数量、权重字节、相邻重复词计数、触及长度上限数量。RTF 排除磁盘加载，包含特征与生成，先 warmup 再 CUDA synchronize。相邻重复词仅为诊断，合法重复也会计入。此轮不作生产端到端延迟结论。
 
-算力预算：本机未实测，不编造 GPU 小时估计。先 2 样本 smoke（包含 CE/KD/D/G 和 2 条 dev 生成），完整 4 组 × 5 epochs，另 6 个模型最终测试。训练每20样本打印进度，每样本落损失 JSONL；smoke 通过只证明链路可运行。检查 GPU 显存与单轮耗时后可以中断；如果需修改预算，应归档 runtime 后另开配置。
+算力预算：每个学生先 2 样本 smoke（包含 CE/KD/D/G 和 2 条 dev 生成），各跑4组×5 epochs，并各评测教师、初始学生及4组训练后学生。合计8组正式训练，单卡顺序执行。训练每20样本打印进度，每样本落损失JSONL；smoke通过只证明链路可运行。新一轮small耗时尚未实测。配置/源码不变时可以恢复；修改配置前须归档对应运行目录。

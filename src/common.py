@@ -1,11 +1,12 @@
 import hashlib
 import json
+import os
 import random
 import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-WORK = ROOT / 'runtime'
+WORK = Path(os.environ.get('ATC_WORK_DIR', str(ROOT / 'runtime'))).resolve()
 
 def evaluation_path(output, suffix):
     output = Path(output)

@@ -1,0 +1,14 @@
+{
+  "teacher": "jlvdoorn/whisper-large-v3-atco2-asr-atcosim",
+  "student": "openai/whisper-base",
+  "teacher_revision": "efd96bd7862709d2d6aeb55621934a9965db8ed7",
+  "student_revision": "e37978b90ca9030d5170a5c07aadb050351a65bb",
+  "dataset": "jlvdoorn/atco2-asr-atcosim",
+  "dataset_revision": "21820a50f2f4d0a8f90838feb4efe88c3db31f95",
+  "language": "en", "seed": 42,
+  "epochs": 5, "lr": 0.00001, "grad_accum": 8,
+  "temperature": 2.0, "kd_weight": 0.5,
+  "adv_weights": [0.01, 0.1], "adv_lr": 0.0001,
+  "max_tokens": 256, "dev_fraction": 0.1,
+  "smoke_steps": 2
+}

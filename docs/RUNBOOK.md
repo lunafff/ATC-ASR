@@ -4,9 +4,16 @@
 
 耗时预算（同一 A6000、当前 5 epoch 配置）：原包文件时间显示 smoke 完成于 11-18 01:51，整轮完成于 12:47，训练与最终评测合计约 10 小时 56 分。按相邻组完成时间估计（包含加载、Dev 评测和保存）：CE 约 51 分钟，KD 约 3 小时 10 分，两个对抗组各约 3 小时 10 分，最终评测和打包约 35 分钟。混合版架构相同，预计计算部分约 11 小时，计入下载与数据准备预留 12–14 小时；网络较慢另计。以上依据归档时间估算，不是逐阶段精确计时。
 
-## 2026-11-20 small + 混合版教师重跑入口
+## 2026-11-20 base + small，各4组，共8组
 
-学生统一替换为 `openai/whisper-small`，revision `973afd24965f72e36ca33b3055d56a652f456b4d`。四组仍为 CE / KD / KD+对抗0.01 / KD+对抗0.1，每组5 epoch、seed42、lr1e-5、batch1、累积8、T2、KD权重0.5、D lr1e-4。数据及划分算法未改变。前述耗时属于旧 base 实验，不能作为 small 的耗时承诺。
+最终范围：`openai/whisper-base`（配置 configs/base.json）和 `openai/whisper-small`（配置 configs/default.json）分别完成 CE / KD / KD+对抗0.01 / KD+对抗0.1，合计8组。每组5 epoch、seed42、lr1e-5、batch1、累积8、T2、KD权重0.5、D lr1e-4。两个配置只在学生名称及revision上不同。数据及划分算法未改变。前述耗时属于旧 base 实验，不能作为8组的总耗时承诺。
+
+默认 `run.ps1` 串行执行 base→small，失败立即停止；两者的 smoke、配置锁、源码锁、检查点、完成标记、日志和结果包分别位于 runtime/base 与 runtime/small。可用 `-Student base` 或 `-Student small` 单独续跑。配置/源码不变时，直接重复原命令即可恢复，不要重复归档新运行目录。
+
+| 学生 | 正式训练组 | 当前状态 | 回传包 |
+|---|---|---|---|
+| base | CE / KD / KD+adv0.01 / KD+adv0.1 | 待服务器运行 | runtime/base/results_return.tar.gz |
+| small | CE / KD / KD+adv0.01 / KD+adv0.1 | 待服务器运行 | runtime/small/results_return.tar.gz |
 
 本地核对了固定版本的模型配置、特征配置及完整 tokenizer.json：教师32+32层/128 mel/51866词，学生12+12层/80 mel/51865词；51865个学生token均存在一对一教师映射。本地未验证CUDA实际前向/反向，服务器入口先运行真实smoke（包括CE/KD/D/G）再进行四组训练。
 
@@ -24,7 +31,9 @@ if (Test-Path -LiteralPath .\runtime) {
 powershell -ExecutionPolicy Bypass -File .\run.ps1
 ```
 
-新运行会重新下载混合版教师，并在独立 runtime 中完整执行。原始结果页保留旧配置数值；混合版结果尚未生成。
+新运行在 runtime/base 和 runtime/small 中完整执行。两个结果包请分别命名为 base_results_return.tar.gz、small_results_return.tar.gz 后回传。原始结果页保留旧配置数值；本轮8组结果尚未生成。E盘空间耗尽后，本机旧回传包已原样移至 C:/Users/lx/.codex/experiment-archives/round2_20261120/results_return.tar.gz，SHA256 校验一致。
+
+## 以下为旧单学生实验的历史运行记录（已作废）
 
 安装故障修复（2026-11-17）：用户Windows Python3.11自带pip在cu121单一索引安装时拒绝typing_extensions包名元数据，继而找不到flit_core。run.ps1已改为先从PyPI升级pip，以PyPI为主索引、cu121为额外索引，并精确指定torch==2.5.1+cu121；普通依赖从PyPI安装，随后pip check。此次失败在训练前，无需删除runtime、venv或pip缓存；拉取修复后重跑即可。
 
