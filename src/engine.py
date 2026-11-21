@@ -1,11 +1,13 @@
 import json
 import time
+from datetime import datetime
 import torch
 import torch.nn.functional as F
 from transformers import WhisperForConditionalGeneration, WhisperProcessor
 from jiwer import process_words
 from common import WORK, dump, rows, normalize, seed_all, alignment, evaluation_path
 from data import load_audio, features, labels_for
+from training_monitor import log, progress, rewind_log, draw_curves
 
 def processor(path, cfg):
     p = WhisperProcessor.from_pretrained(path, language=cfg['language'], task='transcribe')
@@ -28,7 +30,8 @@ def evaluate(m, p, records, cfg, output):
         with torch.inference_mode():
             m.generate(features(p, load_audio(records[0]), 'cuda'), language=cfg['language'],
                        task='transcribe', num_beams=1, do_sample=False, max_new_tokens=cfg['max_tokens'])
-    for r in records:
+    evaluation_started = time.perf_counter()
+    for record_index, r in enumerate(records):
         x = load_audio(r)
         torch.cuda.synchronize()
         start = time.perf_counter()
@@ -51,6 +54,8 @@ def evaluate(m, p, records, cfg, output):
         predictions.append({'id': r['id'], 'reference': r['text'], 'prediction': hyp,
                             'seconds': elapsed, 'hit_length_cap': hit_cap,
                             'adjacent_repeat_count': sum(a == b for a,b in zip(cleaned.split(), cleaned.split()[1:]))})
+        if (record_index + 1) % 20 == 0 or record_index + 1 == len(records):
+            progress(f'Eval {output.name}', record_index+1, len(records), evaluation_started)
     metrics = {'wer': errors / words, 'word_errors': errors, 'reference_words': words,
                'rtf': total_time / duration, 'measured_seconds': total_time,
                'parameters': sum(v.numel() for v in m.parameters()), 'n': len(records),
@@ -92,6 +97,11 @@ def train(cfg, name, kd, adv, smoke=False):
         projection = state['projection'].cuda()
         start_epoch, best, step = state['epoch'], state['best'], state['step']
         torch.set_rng_state(state['rng_cpu']); torch.cuda.set_rng_state_all(state['rng_cuda'])
+        log(f'{name}: resumed {latest}; {start_epoch} completed epochs, optimizer step={step}')
+    else:
+        log(f'{name}: no complete-epoch checkpoint; starting this group from epoch 1')
+    rewind_log(out, start_epoch)
+    draw_curves(out)
     data = rows('train')
     epochs = 1 if smoke else cfg['epochs']
     for epoch in range(start_epoch, epochs):
@@ -101,6 +111,7 @@ def train(cfg, name, kd, adv, smoke=False):
         if smoke:
             order = order[:cfg['smoke_steps']]
         s.train(); opt.zero_grad(set_to_none=True)
+        epoch_started = time.perf_counter()
         for i, idx in enumerate(order):
             r = data[idx]
             audio = load_audio(r)
@@ -138,11 +149,15 @@ def train(cfg, name, kd, adv, smoke=False):
                     raise RuntimeError('Frozen teacher unexpectedly received gradients')
                 opt.step(); opt.zero_grad(set_to_none=True); step += 1
             record = {'epoch': epoch+1, 'sample': i+1, 'step': step, 'ce': ce.item(), 'kd': kl.item(),
-                      'adv': generator.item(), 'd': dl.item(), 'loss': loss.item()}
+                      'adv': generator.item(), 'd': dl.item(), 'loss': loss.item(),
+                      'timestamp': datetime.now().astimezone().isoformat(timespec='seconds')}
             with (out / 'train.jsonl').open('a', encoding='utf-8') as f:
                 f.write(json.dumps(record)+'\n')
-            if i % 20 == 0:
-                print(name, record, flush=True)
+            if i % 20 == 0 or i+1 == len(order):
+                progress(f'{WORK.name}/{name} epoch {epoch+1}/{epochs}', i+1, len(order), epoch_started,
+                         f'step={step} loss={record["loss"]:.5f} CE={record["ce"]:.5f} KD={record["kd"]:.5f}')
+            if (i+1) % 200 == 0:
+                draw_curves(out)
         metrics = evaluate(s, sp, rows('dev')[:2] if smoke else rows('dev'), cfg, out / f'dev_epoch_{epoch+1}')
         if metrics['wer'] < best:
             best = metrics['wer']
@@ -151,4 +166,7 @@ def train(cfg, name, kd, adv, smoke=False):
                  'd_optimizer': dop.state_dict(), 'projection': projection, 'epoch': epoch+1, 'best': best,
                  'step': step, 'config': cfg, 'rng_cpu': torch.get_rng_state(), 'rng_cuda': torch.cuda.get_rng_state_all()}
         torch.save(state, out / 'latest.tmp'); (out / 'latest.tmp').replace(latest)
+        draw_curves(out)
+        log(f'{name}: epoch {epoch+1}/{epochs} saved; Dev WER={metrics["wer"]:.3%}, '
+            f'best={best:.3%}, duration={(time.perf_counter()-epoch_started)/60:.1f} min; curves: {out / "training_curves.svg"}')
     dump(out / 'complete.json', {'best_dev_wer': best, 'epochs': epochs, 'smoke': smoke})

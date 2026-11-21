@@ -1,0 +1,21 @@
+{
+  "previous": [
+    {
+      "src\\common.py": "b0d1b2ee61fc10d3571c1f026bb49d10d6d3b8d10621122ce8d3e1a1334f54bb",
+      "src\\data.py": "1a7bb6ede6ab543621f4843de485a19c0faacbefdbe764d00d4b9d1cceaf64b8",
+      "src\\engine.py": "bab2069c0161ee4343b6431f83cb3561bc05ad87a1121ed9a9458118e2dfb70f",
+      "src\\local_assets.py": "db08b33390d1ff41c8d2cbd9c362df2ccb67f33ba1f72d0495c043622d5cd256",
+      "src\\pipeline.py": "58ce593e90f08f84abeaaf092777824319d08ef8966418d3e59f350187adef4b",
+      "src\\prepare.py": "e2f996c4b2a09ef2237d28940d89214b2d2a01ef80a47ddb2fe263d7b2c7302d"
+    }
+  ],
+  "current": {
+    "src\\common.py": "b0d1b2ee61fc10d3571c1f026bb49d10d6d3b8d10621122ce8d3e1a1334f54bb",
+    "src\\data.py": "1a7bb6ede6ab543621f4843de485a19c0faacbefdbe764d00d4b9d1cceaf64b8",
+    "src\\engine.py": "107621d141dd5cfa7e9dfc7b55c2206124fa4fd76fc8260d8a1d7e647340eb89",
+    "src\\local_assets.py": "db08b33390d1ff41c8d2cbd9c362df2ccb67f33ba1f72d0495c043622d5cd256",
+    "src\\pipeline.py": "8dd91cae00be77af907d5bd364cf49e508b795c7f359ed97d74a5cbea38ddce2",
+    "src\\prepare.py": "e2f996c4b2a09ef2237d28940d89214b2d2a01ef80a47ddb2fe263d7b2c7302d",
+    "src\\training_monitor.py": "369cbca7b5de642975cdd452e74e035b2f3465206a6969cb4d444ad7ac3eaafa"
+  }
+}

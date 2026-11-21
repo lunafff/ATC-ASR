@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 import torch
 from common import ROOT, WORK, dump, digest
+from training_monitor import monitor_update_allowed
 
 def main():
     parser = argparse.ArgumentParser()
@@ -28,11 +29,15 @@ def main():
     source_hashes = {str(p.relative_to(ROOT)): digest(p) for p in sorted((ROOT / 'src').glob('*.py'))}
     sources = WORK / 'provenance/sources.json'
     if sources.exists() and json.loads(sources.read_text(encoding='utf-8')) != source_hashes:
-        if any(p.is_file() for p in (WORK / 'runs').rglob('*')):
+        old_sources = json.loads(sources.read_text(encoding='utf-8'))
+        monitor_only = monitor_update_allowed(ROOT, old_sources, source_hashes)
+        if any(p.is_file() for p in (WORK / 'runs').rglob('*')) and not monitor_only:
             raise RuntimeError('Source changed after training began: preserve runtime and start a new suite directory')
-        dump(WORK / 'provenance/sources_before_download_fix.json',
+        stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+        dump(WORK / f'provenance/source_updates/{stamp}.json',
              json.loads(sources.read_text(encoding='utf-8')))
-        print('Updating source lock before training; preserving local downloads.', flush=True)
+        print('Verified monitoring-only update; preserving checkpoints.' if monitor_only else
+              'Updating source lock before training; preserving local downloads.', flush=True)
     dump(sources, source_hashes)
     def git(*cmd):
         return subprocess.run(['git', *cmd], cwd=ROOT, capture_output=True, text=True).stdout.strip()
@@ -58,6 +63,9 @@ def main():
         runs += [(f'kd_adv_{w}', True, w, False) for w in cfg['adv_weights']]
         for name, kd, adv, smoke in runs:
             if (WORK / 'runs' / name / 'complete.json').exists():
+                from training_monitor import log, draw_curves
+                log(f'{WORK.name}/{name}: already complete; skipping training')
+                draw_curves(WORK / 'runs' / name)
                 continue
             dump(WORK / 'status.json', {'current': name, 'state': 'running'})
             train(cfg, name, kd, adv, smoke)
@@ -100,7 +108,7 @@ def package():
     with tarfile.open(target, 'w:gz') as tar:
         for folder in ('provenance', 'manifests', 'evaluation', 'logs', 'runs'):
             for p in (WORK / folder).rglob('*'):
-                if p.is_file() and p.suffix in ('.json', '.jsonl', '.csv', '.txt', '.log') and 'best' not in p.parts:
+                if p.is_file() and p.suffix in ('.json', '.jsonl', '.csv', '.txt', '.log', '.svg', '.html') and 'best' not in p.parts:
                     tar.add(p, arcname=str(p.relative_to(WORK)))
         for p in (WORK / 'status.json', WORK / 'failure.json'):
             if p.exists(): tar.add(p, arcname=p.name)

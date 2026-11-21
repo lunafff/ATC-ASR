@@ -1,5 +1,22 @@
 # Runbook / 实验追踪表
 
+## 2026-11-21 续训、时间进度与曲线
+
+支持完整epoch边界续训：每个组的 latest.pt 含学生、优化器、鉴别器、随机投影、CPU/CUDA随机状态、完成epoch、最佳Dev WER及配置。重复运行原入口，已完成组跳过；中断epoch从头重跑，尚无latest.pt的组从epoch1开始。不是batch级续训。
+
+监控更新兼容已推送的7421171训练源码，严格核对更新前后源码摘要并记录到 provenance/source_updates，不改损失、模型、优化器或数据配置。其他训练源码变化仍拒绝续训。升级时先停止训练，再git pull；保留runtime，不归档、不删除检查点。
+
+日志每20样本带当地时区时间、学生/组/epoch、样本数、百分比进度条、速度、当前epoch剩余时间和loss；Dev/Test生成也显示进度。每个epoch完成打印Dev WER、耗时及checkpoint位置。重复epoch的旧日志保存在各组 interrupted_logs，train.jsonl 回退到最后完整checkpoint，曲线不重复计算旧尝试。
+
+各组每200样本、每个epoch和恢复时更新 training_curves.svg 与 training_curves.html（浏览器每30秒刷新）。包含100样本移动平均的总loss/CE/KD/G/D，以及逐epoch Dev WER、Dev RTF。图在 runtime/base/runs/<组>/ 和 runtime/small/runs/<组>/，SVG/HTML自动收入两个回传包。不同组总loss定义不同，不能按绝对值直接判断优劣。中断后不足200条的最新数据会在下次绘图时更新。
+
+可以不启动训练，单独从已有日志生成图：
+
+```powershell
+.\.venv\Scripts\python.exe src/training_monitor.py --work-dir runtime/base
+.\.venv\Scripts\python.exe src/training_monitor.py --work-dir runtime/small
+```
+
 ## 2026-11-21 本地下载复用修复
 
 下载前按 configs/assets.json 中固定revision的上游文件大小、SHA256或Git blob摘要检查本地文件。优先当前目录，随后查找 runtime/base、runtime/small、runtime_old*（含旧单学生及双学生目录）。匹配文件通过硬链接复用，跨盘时复制；不修改旧文件。全部匹配时不会调用HF下载API，缺失/损坏文件才下载。数据只要求7个固定parquet，README不再请求。两个学生仍生成各自独立的音频、清单、训练结果。
