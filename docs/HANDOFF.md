@@ -1,6 +1,6 @@
 # 跨电脑接续交接（2026-11-21）
 
-新会话先读此文件，再读 RUNBOOK.md、EXPERIMENT_PLAN.md 和两个学生配置。本文代替完整聊天记录；不包含凭据。后续工作结束时更新当前状态。
+新会话先读此文件，再读 RUNBOOK.md、EXPERIMENT_PLAN.md 和两个学生配置。Mac尚未安装ARIS时，按 [ARIS_SETUP_MAC.md](ARIS_SETUP_MAC.md) 从官方仓库下载安装，用户不必重新逐条输入命令；本仓库仅保存下载方法，不附带skills快照。本文代替完整聊天记录；不包含凭据。后续工作结束时更新当前状态。
 
 ## 仓库和分工
 
@@ -63,7 +63,7 @@ cd ATC-ASR
 python3 -B -m unittest discover -s tests -v
 ```
 
-单元测试只需Python标准库，不用为开发检查安装CUDA环境。若python3尚未安装，先安装Python3.11。训练环境保留在Windows服务器，不复制.venv。ARIS skills需在Mac单独安装；仓库已有实验计划、runbook和结果文档，不依赖完整对话。原项目其他未入此仓库的研究资料需要另行同步。
+单元测试只需Python标准库，不用为开发检查安装CUDA环境。若python3尚未安装，先安装Python3.11。训练环境保留在Windows服务器，不复制.venv。ARIS skills按ARIS_SETUP_MAC.md由Codex下载安装；仓库已有实验计划、runbook和结果文档，不依赖完整对话。原项目其他未入此仓库的研究资料需要另行同步。
 
 ## 用户偏好
 
