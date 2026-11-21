@@ -5,10 +5,16 @@ import unittest
 from pathlib import Path
 from xml.etree import ElementTree
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
-from training_monitor import records, rewind_log, draw_curves, monitor_update_allowed
+from training_monitor import records, rewind_log, draw_curves, monitor_update_allowed, source_map_matches
 
 
 class Monitor(unittest.TestCase):
+    def test_source_map_accepts_only_known_line_endings_and_path_separators(self):
+        expected = {'src/engine.py': ['LF-digest', 'CRLF-digest']}
+        self.assertTrue(source_map_matches({'src\\engine.py': 'CRLF-digest'}, expected))
+        self.assertTrue(source_map_matches({'src/engine.py': 'LF-digest'}, expected))
+        self.assertFalse(source_map_matches({'src/engine.py': 'edited'}, expected))
+        self.assertFalse(source_map_matches({'src/engine.py': 'LF-digest', 'src/extra.py': 'x'}, expected))
     def test_resume_rewinds_partial_epoch_and_preserves_original(self):
         with tempfile.TemporaryDirectory() as folder:
             out = Path(folder)

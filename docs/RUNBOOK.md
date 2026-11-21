@@ -2,6 +2,8 @@
 
 ## 2026-11-21 续训、时间进度与曲线
 
+兼容检查修正：接受已发布dd02ee3、7421171、2c89ee2源码的已知LF/CRLF字节摘要，并规范化路径分隔符。仍逐文件核对旧、新版本，未知代码改动不会放行。17项测试及3个历史版本的LF/CRLF迁移检查通过。如果再次拒绝，保留checkpoint并查看 runtime/<学生>/provenance/source_mismatch.json；不要删除sources.json或重新归档训练目录来绕过检查。
+
 支持完整epoch边界续训：每个组的 latest.pt 含学生、优化器、鉴别器、随机投影、CPU/CUDA随机状态、完成epoch、最佳Dev WER及配置。重复运行原入口，已完成组跳过；中断epoch从头重跑，尚无latest.pt的组从epoch1开始。不是batch级续训。
 
 监控更新兼容已推送的7421171训练源码，严格核对更新前后源码摘要并记录到 provenance/source_updates，不改损失、模型、优化器或数据配置。其他训练源码变化仍拒绝续训。升级时先停止训练，再git pull；保留runtime，不归档、不删除检查点。

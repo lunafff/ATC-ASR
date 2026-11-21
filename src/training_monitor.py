@@ -13,7 +13,18 @@ def monitor_update_allowed(root, previous, current):
     if not path.exists():
         return False
     known = json.loads(path.read_text(encoding='utf-8'))
-    return current == known['current'] and previous in known['previous']
+    return source_map_matches(current, known['current']) and any(
+        source_map_matches(previous, candidate) for candidate in known['previous'])
+
+
+def source_map_matches(actual, expected):
+    # Git checkouts and historical Windows working trees can differ in line
+    # endings and path separators. Only explicitly recorded byte hashes pass.
+    actual = {key.replace('\\', '/'): value for key, value in actual.items()}
+    expected = {key.replace('\\', '/'): value for key, value in expected.items()}
+    return actual.keys() == expected.keys() and all(
+        digest in (expected[key] if isinstance(expected[key], list) else [expected[key]])
+        for key, digest in actual.items())
 
 
 def log(message):

@@ -32,7 +32,8 @@ def main():
         old_sources = json.loads(sources.read_text(encoding='utf-8'))
         monitor_only = monitor_update_allowed(ROOT, old_sources, source_hashes)
         if any(p.is_file() for p in (WORK / 'runs').rglob('*')) and not monitor_only:
-            raise RuntimeError('Source changed after training began: preserve runtime and start a new suite directory')
+            dump(WORK / 'provenance/source_mismatch.json', {'previous': old_sources, 'current': source_hashes})
+            raise RuntimeError('Unrecognized source update; checkpoints preserved. See provenance/source_mismatch.json')
         stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
         dump(WORK / f'provenance/source_updates/{stamp}.json',
              json.loads(sources.read_text(encoding='utf-8')))
